@@ -2,8 +2,8 @@
  * STATIC LIB BUILD
  */
 
-#include <APA/bint.hpp>
-#include <APA/math.hpp>
+#include <bint.hpp>
+#include <math.hpp>
 #include <iostream>
 // #include "core.hpp"  // - header compilation
 

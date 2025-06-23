@@ -14,7 +14,7 @@ const size_t TEST_RUNS = 10;
 const size_t FAC_LEVEL = 400;
 #else
 const size_t TEST_RUNS = 5;
-const size_t FAC_LEVEL = 1000;
+const size_t FAC_LEVEL = 25000;
 #endif
 
 template<class T>
@@ -45,47 +45,25 @@ int main() {
 		std::cerr << "warming up CPU...\n\n";
 		apa::bint warmUp1 = apa::factorial(30000);
 		apa::bint warmUp2 = apa::fibonacci(300000);
-		apa::bint warmup3 = apa::power(500, 500);
+		// apa::bint warmup3 = apa::power(500, 500);
 		std::cerr << "warmup done.\n\n";
 	}
 
 
 	// averages
-	size_t BhimIntegerF = 0, BigIntF = 0, InfIntF = 0, BigNumberF = 0, APAF = 0, BoostF = 0;
+	size_t InfIntF = 0, APAF = 0, BoostF = 0;
 
 	// answer storage
-	BhimInteger AnsBhimInteger;
-	BigInt AnsBigInt;
+//	BhimInteger AnsBhimInteger;
+//	BigInt AnsBigInt;
 	InfInt AnsInfInt;
-	BigNumber AnsBigNumber(0);
+//	BigNumber AnsBigNumber(0);
 	apa::bint AnsAPA;
 	boost::multiprecision::cpp_int AnsBoost;
 
 	// benchmarks start
 
 	std::cerr << "factorial - benckmark started...\n\n";
-
-	// BhimInteger - https://github.com/kothariji/BhimIntegers
-	std::cerr << "factorial(" << FAC_LEVEL << ") - benchmarking BhimInteger.\n";
-	BhimInteger BhimInteger1(1);
-	for(size_t i=0; i<TEST_RUNS; ++i) {
-		auto start = std::chrono::high_resolution_clock::now();
-		AnsBhimInteger = factorial(BhimInteger1, FAC_LEVEL);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto dur = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		BhimIntegerF += dur.count();
-	}
-	
-	// BigInt (release - v0.5.0) https://github.com/faheel/BigInt
-	std::cerr << "factorial(" << FAC_LEVEL << ") - benchmarking BigInt.\n";
-	BigInt BigInt1(1);
-	for(size_t i=0; i<TEST_RUNS; ++i) {
-		auto start = std::chrono::high_resolution_clock::now();
-		AnsBigInt = factorial(BigInt1, FAC_LEVEL);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto dur = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		BigIntF += dur.count();
-	}
 
 	// InfInt - https://github.com/sercantutar/infint
 	std::cerr << "factorial(" << FAC_LEVEL << ") - benchmarking InfInt.\n";
@@ -97,19 +75,6 @@ int main() {
 		auto dur = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 		InfIntF += dur.count();
 	}
-
-	#ifndef EXCLUDE_SLOW
-	// BigNumber - https://github.com/Limeoats/BigNumber
-	std::cerr << "factorial(" << FAC_LEVEL << ") - benchmarking BigNumber.\n";
-	BigNumber BigNumber1(1);
-	for(size_t i=0; i<TEST_RUNS; ++i) {
-		auto start = std::chrono::high_resolution_clock::now();
-		AnsBigNumber = factorial(BigNumber1, FAC_LEVEL);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto dur = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		BigNumberF += dur.count();
-	}
-	#endif
 
 	// APA - this repo
 	std::cerr << "factorial(" << FAC_LEVEL << ") - benchmarking apa::bint.\n";
@@ -135,18 +100,20 @@ int main() {
 
 	//check correctness of output
 	if(
-		#ifndef EXCLUDE_SLOW
-		cout_to_string(AnsBhimInteger) == cout_to_string(AnsBigInt) &&
-		cout_to_string(AnsBigInt) == cout_to_string(AnsInfInt) &&
-		cout_to_string(AnsInfInt) == cout_to_string(AnsBigNumber) &&
-		cout_to_string(AnsBigNumber) == cout_to_string(AnsAPA.to_base10_string()) &&
-		cout_to_string(AnsAPA.to_base10_string()) == cout_to_string(AnsBoost)
-		#else
-		cout_to_string(AnsBhimInteger) == cout_to_string(AnsBigInt) &&
-		cout_to_string(AnsBigInt) == cout_to_string(AnsInfInt) &&
+//		#ifndef EXCLUDE_SLOW
+//		cout_to_string(AnsBhimInteger) == cout_to_string(AnsBigInt) &&
+//		cout_to_string(AnsBigInt) == cout_to_string(AnsInfInt) &&
+//		cout_to_string(AnsInfInt) == cout_to_string(AnsBigNumber) &&
+//		cout_to_string(AnsBigNumber) == cout_to_string(AnsAPA.to_base10_string()) &&
+//		cout_to_string(AnsAPA.to_base10_string()) == cout_to_string(AnsBoost)
+//		#else
+//		cout_to_string(AnsBhimInteger) == cout_to_string(AnsBigInt) &&
+//		cout_to_string(AnsBigInt) == cout_to_string(AnsInfInt) &&
+//		cout_to_string(AnsInfInt) == cout_to_string(AnsAPA.to_base10_string()) &&
+//		cout_to_string(AnsAPA.to_base10_string()) == cout_to_string(AnsBoost)
+//		#endif
 		cout_to_string(AnsInfInt) == cout_to_string(AnsAPA.to_base10_string()) &&
 		cout_to_string(AnsAPA.to_base10_string()) == cout_to_string(AnsBoost)
-		#endif
 	) {
 		std::cerr << "All factorials are correct\n";
 	} else {
@@ -161,12 +128,12 @@ int main() {
 		std::vector<std::pair<size_t, std::string>>,
 		std::greater<std::pair<size_t, std::string>>> rank;
   
-    rank.push(std::make_pair(BhimIntegerF/TEST_RUNS, "[BhimInteger](https://github.com/kothariji/BhimIntegers)"));
-    rank.push(std::make_pair(BigIntF/TEST_RUNS, "[BigInt](https://github.com/faheel/BigInt)"));
+//    rank.push(std::make_pair(BhimIntegerF/TEST_RUNS, "[BhimInteger](https://github.com/kothariji/BhimIntegers)"));
+//    rank.push(std::make_pair(BigIntF/TEST_RUNS, "[BigInt](https://github.com/faheel/BigInt)"));
     rank.push(std::make_pair(InfIntF/TEST_RUNS, "[InfInt](https://github.com/sercantutar/infint)"));
-	#ifndef EXCLUDE_SLOW
-    rank.push(std::make_pair(BigNumberF/TEST_RUNS, "[BigNumber](https://github.com/Limeoats/BigNumber)"));
-	#endif
+//	#ifndef EXCLUDE_SLOW
+//    rank.push(std::make_pair(BigNumberF/TEST_RUNS, "[BigNumber](https://github.com/Limeoats/BigNumber)"));
+//	#endif
     rank.push(std::make_pair(APAF/TEST_RUNS, "[apa::bint](https://github.com/mrdcvlsc/APA)"));
 	rank.push(std::make_pair(BoostF/TEST_RUNS, "[boost::multiprecision::cpp_int](https://github.com/boostorg/multiprecision)"));
 

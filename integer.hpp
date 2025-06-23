@@ -110,21 +110,21 @@ namespace apa {
         bool operator>=(const integer &op) const noexcept;
 
         // Bit-Wise Logical Operators
-        integer &operator&=(const integer &op) noexcept;
-        integer &operator|=(const integer &op) noexcept;
-        integer &operator^=(const integer &op) noexcept;
-        integer operator&(const integer &op) const noexcept;
-        integer operator|(const integer &op) const noexcept;
-        integer operator^(const integer &op) const noexcept;
-        integer operator~() const noexcept;
+        // integer &operator&=(const integer &op) noexcept;
+        // integer &operator|=(const integer &op) noexcept;
+        // integer &operator^=(const integer &op) noexcept;
+        // integer operator&(const integer &op) const noexcept;
+        // integer operator|(const integer &op) const noexcept;
+        // integer operator^(const integer &op) const noexcept;
+        // integer operator~() const noexcept;
 
         void bit_realloc(const integer &op) noexcept;
         void remove_leading_zeros() noexcept ;
 
-        void bit_flip(size_t padding = 0) noexcept;
-        void bit_and(const integer &op) noexcept;
-        void bit_or(const integer &op) noexcept;
-        void bit_xor(const integer &op) noexcept;
+        // void bit_flip(size_t padding = 0) noexcept;
+        // void bit_and(const integer &op) noexcept;
+        // void bit_or(const integer &op) noexcept;
+        // void bit_xor(const integer &op) noexcept;
 
         // Logical Operators
         explicit operator bool() const noexcept;

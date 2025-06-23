@@ -49,11 +49,11 @@ int main() {
         auto mul_dur = std::chrono::duration_cast<std::chrono::nanoseconds>(mul_end - mul_start);
         case3_total += mul_dur.count();
 
-        auto div_start = std::chrono::high_resolution_clock::now();
-        a / b;
-        auto div_end = std::chrono::high_resolution_clock::now();
-        auto div_dur = std::chrono::duration_cast<std::chrono::nanoseconds>(div_end - div_start);
-        case4_total += div_dur.count();
+      //   auto div_start = std::chrono::high_resolution_clock::now();
+      //   a / b;
+      //   auto div_end = std::chrono::high_resolution_clock::now();
+      //   auto div_dur = std::chrono::duration_cast<std::chrono::nanoseconds>(div_end - div_start);
+      //   case4_total += div_dur.count();
     }
 
     std::cout << "### Using base 2<sup>" << sizeof(apa::limb_t) * 8
@@ -76,9 +76,9 @@ int main() {
                  "| mul (a * b) | "
               << case3_total / RUNS
               << " ns |\n"
-                 "| div (a / b) | "
-              << case4_total / RUNS
-              << " ns |\n\n"
+              //    "| div (a / b) | "
+              // << case4_total / RUNS
+              // << " ns |\n\n"
                  "**functions**\n\n"
                  "| name | microseconds |\n"
                  "| ---- | ------------ |\n"

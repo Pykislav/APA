@@ -49,15 +49,15 @@ namespace apa {
         /// @return returns; -1 : if less than, 0 : if equal, 1 : if greater than.
         int compare(const bint &with) const;
 
-        static void bitwise_prepare(bint &left, bint &right);
+        // static void bitwise_prepare(bint &left, bint &right);
 
         static bint add_partial(
             const limb_t *l, size_t l_len, size_t l_index, const limb_t *r, size_t r_len, size_t r_index
         );
 
-        static void sub_partial(
-            limb_t *output, size_t out_len, size_t out_index, const limb_t *m, size_t m_len, size_t m_index
-        );
+        // static void sub_partial(
+        //     limb_t *output, size_t out_len, size_t out_index, const limb_t *m, size_t m_len, size_t m_index
+        // );
 
         static void mul_karatsuba(
             limb_t *output, size_t out_len, size_t out_index, const limb_t *l, size_t l_len, size_t l_index,
@@ -115,13 +115,13 @@ namespace apa {
         bool operator>=(const bint &op) const;
 
         // Bit-Wise Logical Operators
-        bint &operator&=(const bint &op);
-        bint &operator|=(const bint &op);
-        bint &operator^=(const bint &op);
-        bint operator&(const bint &op) const;
-        bint operator|(const bint &op) const;
-        bint operator^(const bint &op) const;
-        bint operator~() const;
+        // bint &operator&=(const bint &op);
+        // bint &operator|=(const bint &op);
+        // bint &operator^=(const bint &op);
+        // bint operator&(const bint &op) const;
+        // bint operator|(const bint &op) const;
+        // bint operator^(const bint &op) const;
+        // bint operator~() const;
 
         // Logical Operators
         explicit operator bool() const noexcept;
@@ -130,14 +130,14 @@ namespace apa {
         bint &operator+=(const bint &op);
         bint &operator-=(const bint &op);
         bint &operator*=(const bint &op);
-        bint &operator/=(const bint &op);
-        bint &operator%=(const bint &op);
+        // bint &operator/=(const bint &op);
+        // bint &operator%=(const bint &op);
 
         bint operator+(const bint &op) const;
         bint operator-(const bint &op) const;
         bint operator*(const bint &op) const;
-        bint operator/(const bint &op) const;
-        bint operator%(const bint &op) const;
+        // bint operator/(const bint &op) const;
+        // bint operator%(const bint &op) const;
 
         bint operator-() const;
 

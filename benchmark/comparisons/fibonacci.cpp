@@ -44,7 +44,7 @@ int main() {
 		std::cerr << "\n\nwarming up CPU...\n\n";
 		apa::bint warmUp1 = apa::factorial(30000);
 		apa::bint warmUp2 = apa::fibonacci(300000);
-		apa::bint warmup3 = apa::power(500, 500);
+		// apa::bint warmup3 = apa::power(500, 500);
 		std::cerr << "warmup done.\n\n";
 	}
 
