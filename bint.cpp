@@ -102,7 +102,7 @@ namespace apa {
     bint::bint(unsigned long num)
     :   number(integer((size_t) num)), sign(POSITIVE)
     {}
-
+//123123
     bint::bint(long long num)
     :   sign(num < 0)
     {
