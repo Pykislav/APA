@@ -11,8 +11,6 @@ namespace apa {
     integer factorial_integer(size_t n);
     bint factorial(size_t n);
 
-    // integer power_integer(const integer &base, const integer &exponent);
-    bint power(const bint &base, const bint &exponent);
 } // namespace apa
 
 #endif

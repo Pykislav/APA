@@ -10,11 +10,11 @@ string's size use to initialize = 5500
 
 | cases | microseconds |
 | ----- | ----------- |
-| base 2 initialization | 18930 |
-| base 8 initialization | 20118 |
-| base 10 initialization | 19492 |
-| base 16 initialization | 98 |
-| to_base10_string() | 22345 |
+| base 2 initialization | 21729 |
+| base 8 initialization | 21084 |
+| base 10 initialization | 21345 |
+| base 16 initialization | 82 |
+| to_base10_string() | 21659 |
 
 the to_base10_string() benchmark is from a 1375 limbs size big integer
 
@@ -24,11 +24,11 @@ string's size use to initialize = 5500
 
 | cases | microseconds |
 | ----- | ----------- |
-| base 2 initialization | 17261 |
-| base 8 initialization | 17604 |
-| base 10 initialization | 17152 |
-| base 16 initialization | 70 |
-| to_base10_string() | 14662 |
+| base 2 initialization | 18048 |
+| base 8 initialization | 17789 |
+| base 10 initialization | 20070 |
+| base 16 initialization | 100 |
+| to_base10_string() | 15478 |
 
 the to_base10_string() benchmark is from a 688 limbs size big integer
 
@@ -38,11 +38,11 @@ string's size use to initialize = 5500
 
 | cases | microseconds |
 | ----- | ----------- |
-| base 2 initialization | 17922 |
-| base 8 initialization | 17250 |
-| base 10 initialization | 19585 |
-| base 16 initialization | 74 |
-| to_base10_string() | 12408 |
+| base 2 initialization | 19273 |
+| base 8 initialization | 18934 |
+| base 10 initialization | 18815 |
+| base 16 initialization | 76 |
+| to_base10_string() | 13887 |
 
 the to_base10_string() benchmark is from a 344 limbs size big integer
 

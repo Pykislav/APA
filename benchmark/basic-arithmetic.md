@@ -13,15 +13,15 @@ Average performance (nanoseconds)
 
 | cases | nanoseconds |
 | ----- | ----------- |
-| add (a + b) | 4810 ns |
-| sub (a - b) | 5508 ns |
-| mul (a * b) | 3914252 ns |
+| add (a + b) | 5172 ns |
+| sub (a - b) | 5758 ns |
+| mul (a * b) | 4204688 ns |
 **functions**
 
 | name | microseconds |
 | ---- | ------------ |
-| apa::fibonacci(100000) | 155561 μs |
-| apa::factorial(8000) | 17179 μs |
+| apa::fibonacci(100000) | 159597 μs |
+| apa::factorial(8000) | 17352 μs |
 
 ### Using base 2<sup>32</sup> number system representation.
 
@@ -32,15 +32,15 @@ Average performance (nanoseconds)
 
 | cases | nanoseconds |
 | ----- | ----------- |
-| add (a + b) | 1912 ns |
-| sub (a - b) | 2069 ns |
-| mul (a * b) | 1048260 ns |
+| add (a + b) | 2487 ns |
+| sub (a - b) | 2178 ns |
+| mul (a * b) | 1217859 ns |
 **functions**
 
 | name | microseconds |
 | ---- | ------------ |
-| apa::fibonacci(100000) | 56700 μs |
-| apa::factorial(8000) | 7452 μs |
+| apa::fibonacci(100000) | 68231 μs |
+| apa::factorial(8000) | 7942 μs |
 
 ### Using base 2<sup>64</sup> number system representation.
 
@@ -51,15 +51,15 @@ Average performance (nanoseconds)
 
 | cases | nanoseconds |
 | ----- | ----------- |
-| add (a + b) | 1064 ns |
-| sub (a - b) | 1087 ns |
-| mul (a * b) | 408078 ns |
+| add (a + b) | 1116 ns |
+| sub (a - b) | 1143 ns |
+| mul (a * b) | 454559 ns |
 **functions**
 
 | name | microseconds |
 | ---- | ------------ |
-| apa::fibonacci(100000) | 33426 μs |
-| apa::factorial(8000) | 3791 μs |
+| apa::fibonacci(100000) | 34549 μs |
+| apa::factorial(8000) | 3965 μs |
 
 
 ### System Runner

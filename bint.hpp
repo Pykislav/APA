@@ -114,15 +114,6 @@ namespace apa {
         bool operator<=(const bint &op) const;
         bool operator>=(const bint &op) const;
 
-        // Bit-Wise Logical Operators
-        // bint &operator&=(const bint &op);
-        // bint &operator|=(const bint &op);
-        // bint &operator^=(const bint &op);
-        // bint operator&(const bint &op) const;
-        // bint operator|(const bint &op) const;
-        // bint operator^(const bint &op) const;
-        // bint operator~() const;
-
         // Logical Operators
         explicit operator bool() const noexcept;
 
@@ -130,14 +121,10 @@ namespace apa {
         bint &operator+=(const bint &op);
         bint &operator-=(const bint &op);
         bint &operator*=(const bint &op);
-        // bint &operator/=(const bint &op);
-        // bint &operator%=(const bint &op);
 
         bint operator+(const bint &op) const;
         bint operator-(const bint &op) const;
         bint operator*(const bint &op) const;
-        // bint operator/(const bint &op) const;
-        // bint operator%(const bint &op) const;
 
         bint operator-() const;
 

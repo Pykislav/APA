@@ -109,31 +109,14 @@ namespace apa {
         bool operator<=(const integer &op) const noexcept;
         bool operator>=(const integer &op) const noexcept;
 
-        // Bit-Wise Logical Operators
-        // integer &operator&=(const integer &op) noexcept;
-        // integer &operator|=(const integer &op) noexcept;
-        // integer &operator^=(const integer &op) noexcept;
-        // integer operator&(const integer &op) const noexcept;
-        // integer operator|(const integer &op) const noexcept;
-        // integer operator^(const integer &op) const noexcept;
-        // integer operator~() const noexcept;
-
         void bit_realloc(const integer &op) noexcept;
         void remove_leading_zeros() noexcept ;
-
-        // void bit_flip(size_t padding = 0) noexcept;
-        // void bit_and(const integer &op) noexcept;
-        // void bit_or(const integer &op) noexcept;
-        // void bit_xor(const integer &op) noexcept;
 
         // Logical Operators
         explicit operator bool() const noexcept;
 
         // Arithmetic Operators
         integer bit_division(const integer &op) const;
-        integer &bit_division_assign(const integer &op);
-        integer bit_modulo(const integer &op) const;
-        integer &bit_modulo_assign(const integer &op);
         static void div_mod(integer& q, integer& r, integer& dividen, const integer& divisor);
 
         integer &operator+=(const integer &op) noexcept;
@@ -144,8 +127,6 @@ namespace apa {
         integer operator+(const integer &op) const noexcept;
         integer operator-(const integer &op) const noexcept;
         integer operator*(const integer &op) const noexcept;
-        integer operator/(const integer &op) const;
-        integer operator%(const integer &op) const;
 
         // pre-fix increment/decrement
         integer &operator++() noexcept;
