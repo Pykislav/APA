@@ -8,26 +8,7 @@
 #define FIBONACCI 100000
 
 int main() {
-
-    // warmup
-    apa::factorial(500);
-    apa::fibonacci(1000);
-    apa::factorial(200);
-    apa::fibonacci(100);
-
     // start
-    auto factorial_start = std::chrono::high_resolution_clock::now();
-    apa::bint a = apa::factorial(FACTORIALS);
-    auto factorial_end = std::chrono::high_resolution_clock::now();
-    size_t factorial_dur =
-        std::chrono::duration_cast<std::chrono::microseconds>(factorial_end - factorial_start).count();
-
-    auto fibonacci_start = std::chrono::high_resolution_clock::now();
-    apa::bint b = apa::fibonacci(FIBONACCI);
-    auto fibonacci_end = std::chrono::high_resolution_clock::now();
-    size_t fibonacci_dur =
-        std::chrono::duration_cast<std::chrono::microseconds>(fibonacci_end - fibonacci_start).count();
-
     size_t case1_total = 0, case2_total = 0, case3_total = 0, case4_total = 0;
 
     for (size_t i = 0; i < RUNS; ++i) {

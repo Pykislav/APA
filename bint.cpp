@@ -1,703 +1,260 @@
-#ifndef SIGNED_BIG_INTEGER_CPP
-#define SIGNED_BIG_INTEGER_CPP
+#ifndef APA_BINT_CPP
+#define APA_BINT_CPP
 
-#include <iostream>
-
-#include "config.hpp"
-#include "integer.hpp"
 #include "bint.hpp"
+#include "integer.hpp"
+#include <cstdlib>
+#include <cstring>
+#include <stdexcept>
+#include <string>
+#include <algorithm>
 
 namespace apa {
-    // ####################### bint exception class methods #######################
-    bint_error::bint_error(unsigned int error_code) : error_code(error_code) {
-        switch (error_code) {
-            case 1:
-                error_message = "assignment of an empty string literal to a bint is not allowed";
-                break;
-            case BIN:
-                error_message = "invalid digit found in assigned \"binary\" number";
-                break;
-            case OCT:
-                error_message = "invalid digit found in assigned \"octal\" number";
-                break;
-            case DEC:
-                error_message = "invalid digit found in assigned \"decimal\" number";
-                break;
-            case HEX:
-                error_message = "invalid digit found in assigned \"hex\" number";
-                break;
-        }
-    }
 
-    unsigned int bint_error::get_error_code() const {
-        return this->error_code;
-    }
+// Константы знаков
+const limb_t BINT_POSITIVE = 0;
+const limb_t BINT_NEGATIVE = 1;
 
-    const char *bint_error::what() const throw() {
-        return error_message.c_str();
-    }
+// Глобальные константы
+const bint APA_BINT_ZERO = {{1, 1, new limb_t[1]{0}}, BINT_POSITIVE};
+const bint APA_BINT_ONE = {{1, 1, new limb_t[1]{1}}, BINT_POSITIVE};
+const bint APA_BINT_TWO = {{1, 1, new limb_t[1]{2}}, BINT_POSITIVE};
+const bint APA_BINT_TEN = {{1, 1, new limb_t[1]{10}}, BINT_POSITIVE};
 
-    // ####################### bint class methods #######################
+// ====================== Инициализация и управление памятью ======================
 
-    bint::bint(char num)
-    :   sign(num < 0)
-    {
-        if (num == std::numeric_limits<char>::min()) {
-            char new_num = num + 1;
-            number = integer((size_t) std::abs(new_num));
-            number++;
-        } else {
-            number = integer((size_t) std::abs(num));
-        }
-    }
+void bint_init(bint* num) {
+    integer_init(&num->number);
+    num->sign = BINT_POSITIVE;
+}
 
-    bint::bint(unsigned char num)
-    :   number(integer((size_t) num)), sign(POSITIVE)
-    {}
+void bint_init_int(bint* num, int value) {
+    integer_init_size(&num->number, std::abs(value));
+    num->sign = (value < 0) ? BINT_NEGATIVE : BINT_POSITIVE;
+}
 
-    bint::bint(short num)
-    :   sign(num < 0)
-    {
-        if (num == std::numeric_limits<short>::min()) {
-            short new_num = num + 1;
-            number = integer((size_t) std::abs(new_num));
-            number++;
-        } else {
-            number = integer((size_t) std::abs(num));
-        }
-    }
-
-    bint::bint(unsigned short num)
-    :   number(integer((size_t) num)), sign(POSITIVE)
-    {}
-
-    bint::bint(int num)
-    :   sign(num < 0)
-    {
-        if (num == std::numeric_limits<int>::min()) {
-            int new_num = num + 1;
-            number = integer((size_t) std::abs(new_num));
-            number++;
-        } else {
-            number = integer((size_t) std::abs(num));
-        }
-    }
-
-    bint::bint(unsigned int num)
-    :   number(integer((size_t) num)), sign(POSITIVE)
-    {}
-
-    bint::bint(long num)
-    :   sign(num < 0)
-    {
-        if (num == std::numeric_limits<long>::min()) {
-            long new_num = num + 1;
-            number = integer((size_t) std::abs(new_num));
-            number++;
-        } else {
-            number = integer((size_t) std::abs(num));
-        }
-    }
-
-    bint::bint(unsigned long num)
-    :   number(integer((size_t) num)), sign(POSITIVE)
-    {}
-//123123
-    bint::bint(long long num)
-    :   sign(num < 0)
-    {
-        if (num == std::numeric_limits<long long>::min()) {
-            long long new_num = num + 1;
-            number = integer((size_t) std::abs(new_num));
-            number++;
-        } else {
-            number = integer((size_t) std::abs(num));
-        }
-    }
-
-    bint::bint(unsigned long long num)
-    :   number(integer((size_t) num)), sign(POSITIVE)
-    {}
-
-    bint::bint()
-    :   number(integer()),
-        sign(POSITIVE)
-    {}
-
-    bint::bint(size_t capacity, size_t length, bool AllocateSpace)
-    :   number(integer(capacity, length, AllocateSpace)),
-        sign(POSITIVE)
-    {}
-
-    /**
-     * @brief constructor for conveniece, check if the input string is a valid
-     * integral.
-     *
-     * @param input the string representation of an integral type,
-     * it could be in binary, octal, hex, and decimal format.
-     * @return int value 0 if is a valid type, 1 if string is empty
-     * , 2 if invalid binary, 8 if invalid octal, 10 if invalid dec,
-     * 16 if invalid hex, 20 if invalid number format.
-     */
-    bint::bint(const std::string &input) {
-        if (input.empty())
-            throw bint_error(EMPTY); // empty
-
-        size_t start_index = input[0] == '-';
-        size_t base = 0;
-
-        if (input.size() == 1 && (input[0] >= '0' && input[0] <= '9')) {
-            base = DEC;
-        } else if (input[start_index] == '0') {
-            start_index++;
-            if (input[start_index] == 'b') { // check if valid binary
-                start_index++;
-                for (size_t i = start_index; i < input.size(); ++i) {
-                    if ((input[i] < '0') ^ (input[i] > '1')) {
-                        throw bint_error(BIN);
-                    }
-                }
-                base = BIN;
-            } else if (input[start_index] == 'o') { // check if valid octal
-                start_index++;
-                for (size_t i = start_index; i < input.size(); ++i) {
-                    if ((input[i] < '0') ^ (input[i] > '7')) {
-                        throw bint_error(OCT);
-                    }
-                }
-                base = OCT;
-            } else if (input[start_index] == 'x') { // check if valid hex
-                start_index++;
-                for (size_t i = start_index; i < input.size(); ++i) {
-                    if (CHAR_TO_HEX[(size_t) input[i]] == 0xff) {
-                        throw bint_error(HEX);
-                    }
-                }
-                base = HEX;
-            } else {
-                throw bint_error(INVALID);
-            }
-        } else { // should be dec
-            for (size_t i = start_index; i < input.size(); ++i) {
-                if ((input[i] < '0') ^ (input[i] > '9')) {
-                    throw bint_error(DEC);
-                }
-            }
-            base = DEC;
-        }
-
-        sign = input[0] == '-';
-        number = integer(std::string(input.begin() + start_index, input.end()), base);
-        number.remove_leading_zeros();
-    }
-
-// #pragma warning (might produce errors later)
-    bint::bint(const char *input)
-    :    bint(std::string(input))
-    {}
-
-    // read only constuctor
-    bint::bint(limb_t *arr, size_t capacity, size_t length, limb_t sign)
-    :   number(integer(arr, capacity, length)),
-        sign(sign)
-    {}
-
-    /// copy constructor.
-    bint::bint(const bint &src)
-    :   number(src.number),
-        sign(src.sign)
-    {}
-
-    /// move constructor.
-    bint::bint(bint &&src) noexcept
-    :   number(std::move(src.number)),
-        sign(src.sign)
-    {}
-
-    /// copy assignment.
-    bint &bint::operator=(const bint &src) {
-        if (this != &src) {
-            number = src.number;
-            sign = src.sign;
-        }
-        return *this;
-    }
-
-    /// move assignment.
-    bint &bint::operator=(bint &&src) noexcept {
-        if (this != &src) {
-            number = std::move(src.number);
-            sign = src.sign;
-        }
-        return *this;
-    }
-
-    bint::bint(limb_t sign, const integer &number) {
-        this->number = number;
-        this->sign = sign;
-    }
-
-    bint::bint(limb_t sign, integer &&number) noexcept {
-        this->number = std::move(number);
-        this->sign = sign;
-    }
-
-    bint::bint(std::initializer_list<limb_t> limbs, limb_t sign) {
-        number = integer(limbs);
-        this->sign = sign;
-    }
-
-    bint::~bint() {
-        this->sign = 0;
-    }
-
-    int bint::compare(const bint &op) const {
-        if (LPOS_RNEG(sign, op.sign)) {
-            return GREAT;
-        } else if (LNEG_RPOS(sign, op.sign)) {
-            return LESS;
-        } else if (SIGN_NEGATIVE(sign)) {
-            return CMP_RES_FLIP(number.compare(op.number));
-        }
-        return number.compare(op.number);
-    }
-
-    // Logical Operators
-
-    bool bint::operator<(const bint &op) const {
-        return compare(op) == LESS;
-    }
-
-    bool bint::operator>(const bint &op) const {
-        return compare(op) == GREAT;
-    }
-
-    bool bint::operator==(const bint &op) const {
-        return compare(op) == EQUAL;
-    }
-
-    bool bint::operator!=(const bint &op) const {
-        return (*this == op) ^ 1u;
-    }
-
-    bool bint::operator<=(const bint &op) const {
-        return compare(op) <= EQUAL;
-    }
-
-    bool bint::operator>=(const bint &op) const {
-        return compare(op) >= EQUAL;
-    }
-
+void bint_init_string(bint* num, const char* str) {
+    std::string input(str);
     
-    // Logical Operators
-    bint::operator bool() const noexcept {
-        return (bool) number;
+    // Обработка пустой строки
+    if (input.empty()) {
+        throw std::invalid_argument("Empty string passed to bint_init_string");
     }
-
-    // Arithmetic Operators
-    bint &bint::operator+=(const bint &op) {
-        if (sign ^ op.sign) {
-            int cmp = number.compare(op.number);
-            if (cmp == GREAT) {
-                number -= op.number;
-            } else if (cmp == LESS) {
-                number = op.number - number;
-                sign = op.sign;
-            } else {
-                number.length = 1;
-                number[0] = 0;
-                sign = POSITIVE;
-            }
-        } else {
-            number += op.number;
-        }
-        return *this;
+    
+    // Определение знака
+    size_t start = 0;
+    limb_t sign = BINT_POSITIVE;
+    if (input[0] == '-') {
+        sign = BINT_NEGATIVE;
+        start = 1;
+    } else if (input[0] == '+') {
+        start = 1;
     }
-
-    bint bint::operator+(const bint &op) const {
-        if (sign ^ op.sign) {
-            int cmp = number.compare(op.number);
-            if (cmp == GREAT) {
-                return bint(sign, number - op.number);
-            } else if (cmp == LESS) {
-                return bint(op.sign, op.number - number);
-            } else {
-                return __BINT_ZERO;
+    
+    // Определение системы счисления
+    size_t base = 10;
+    if (input.size() >= start + 2) {
+        if (input[start] == '0') {
+            switch (input[start + 1]) {
+                case 'b': base = 2; start += 2; break;
+                case 'o': base = 8; start += 2; break;
+                case 'x': base = 16; start += 2; break;
             }
         }
-        return bint(sign, number + op.number);
     }
-
-    bint &bint::operator-=(const bint &op) {
-        if (sign ^ op.sign) {
-            number += op.number; // correct - final
-        } else {
-            int cmp = compare(op);
-            if (cmp == EQUAL) {
-                number.length = 1;
-                number[0] = 0;
-            } else if (SIGN_NEGATIVE(sign)) {
-                if (cmp == GREAT) {
-                    number = op.number - number;
-                    sign = POSITIVE;
-                } else {
-                    number -= op.number;
-                    sign = NEGATIVE;
-                }
-            } else {
-                if (cmp == GREAT) {
-                    number -= op.number;
-                    sign = POSITIVE;
-                } else {
-                    number = op.number - number;
-                    sign = NEGATIVE;
-                }
-            }
-        }
-        return *this;
+    
+    // Инициализация целой части
+    std::string num_str = input.substr(start);
+    integer_init_string(&num->number, num_str, base);
+    num->sign = sign;
+    
+    // Коррекция нуля
+    if (num->number.length == 1 && num->number.limbs[0] == 0) {
+        num->sign = BINT_POSITIVE;
     }
+}
 
-    bint bint::operator-(const bint &op) const {
-        if (sign == op.sign) {
-            int cmp = compare(op);
-            if (cmp == EQUAL) {
-                return __BINT_ZERO;
-            } else if (SIGN_NEGATIVE(sign)) {
-                if (cmp == GREAT) {
-                    return bint(POSITIVE, op.number - number);
-                } else {
-                    return bint(NEGATIVE, number - op.number);
-                }
-            } else {
-                if (cmp == GREAT) {
-                    return bint(POSITIVE, number - op.number);
-                } else {
-                    return bint(NEGATIVE, op.number - number);
-                }
-            }
-        }
-        return bint(sign, number + op.number);
+void bint_copy(const bint* src, bint* dest) {
+    integer_copy(&src->number, &dest->number);
+    dest->sign = src->sign;
+}
+
+void bint_move(bint* src, bint* dest) {
+    integer_move(&src->number, &dest->number);
+    dest->sign = src->sign;
+    
+    src->sign = BINT_POSITIVE;
+}
+
+void bint_free(bint* num) {
+    integer_free(&num->number);
+    num->sign = BINT_POSITIVE;
+}
+
+// ====================== Операции сравнения ======================
+
+int bint_compare(const bint* a, const bint* b) {
+    // Разные знаки
+    if (a->sign != b->sign) {
+        return (a->sign == BINT_NEGATIVE) ? -1 : 1;
     }
-
-    bint &bint::operator*=(const bint &op) {
-        bint product = *this * op;
-        swap(product, *this);
-        return *this;
+    
+    // Оба отрицательные
+    if (a->sign == BINT_NEGATIVE) {
+        return -integer_compare(&a->number, &b->number);
     }
+    
+    // Оба положительные
+    return integer_compare(&a->number, &b->number);
+}
 
-    bint bint::mul_naive(const bint &op) const {
-        bint product((sign == op.sign) ^ 1u, number * op.number);
-        if (!product.number) {
-            product.sign = 0;
-        }
-        return product;
+// ====================== Арифметические операции ======================
+
+void bint_add(const bint* a, const bint* b, bint* result) {
+    // Одинаковые знаки
+    if (a->sign == b->sign) {
+        integer_add(&a->number, &b->number, &result->number);
+        result->sign = a->sign;
+        return;
     }
-
-    bint bint::add_partial(
-        const limb_t *num1, size_t num1_len, size_t num1_index, const limb_t *num2, size_t num2_len, size_t num2_index
-    ) {
-        size_t len = std::max(num1_len, num2_len) + 1;
-        bint sum(len + 1, len);
-        std::memset(sum.number.limbs, 0x00, LIMB_BYTES * sum.number.capacity);
-
-        for (size_t i = 0; i < num1_len; ++i) {
-            sum.number.limbs[i] = num1[num1_index + i];
-        }
-
-        limb_t carry = 0;
-        for (size_t i = 0; i < num2_len; ++i) {
-            cast_t sum_index = (cast_t) sum.number.limbs[i] + num2[num2_index + i] + carry;
-            sum.number.limbs[i] = sum_index;
-            carry = sum_index >> BASE_BITS;
-        }
-
-        for (size_t i = num2_len; i < sum.number.length; ++i) {
-            cast_t sum_index = (cast_t) sum.number.limbs[i] + carry;
-            sum.number.limbs[i] = sum_index;
-            carry = sum_index >> BASE_BITS;
-        }
-        sum.number.limbs[sum.number.length] += carry;
-
-        sum.number.remove_leading_zeros();
-        return sum;
+    
+    // Разные знаки - фактически вычитание
+    int cmp = integer_compare(&a->number, &b->number);
+    if (cmp > 0) {
+        integer_sub(&a->number, &b->number, &result->number);
+        result->sign = a->sign;
+    } else if (cmp < 0) {
+        integer_sub(&b->number, &a->number, &result->number);
+        result->sign = b->sign;
+    } else {
+        // Числа равны по модулю, результат 0
+        integer_set_uint(&result->number, 0);
+        result->sign = BINT_POSITIVE;
     }
+}
 
-    void bint::mul_karatsuba(
-        limb_t *out, size_t out_len, size_t out_index, const limb_t *num1, size_t num1_len, size_t num1_index,
-        const limb_t *num2, size_t num2_len, size_t num2_index
-    ) {
-        if (num2_len < KARATSUBA_SIZE || num1_len < KARATSUBA_SIZE) {
-            size_t i = 0, j = 0;
-            limb_t carry = 0;
-            for (j = 0; j < num1_len; ++j) {
-                cast_t product_index = (cast_t) num1[j + num1_index] * num2[num2_index] + carry;
-                out[j + out_index] = product_index;
-                carry = (product_index >> BASE_BITS);
-            }
-            out[num1_len + out_index] = carry;
-
-            for (i = 1; i < num2_len; ++i) {
-                carry = 0;
-                for (j = 0; j < num1_len; ++j) {
-                    cast_t product_index =
-                        (cast_t) num1[j + num1_index] * num2[i + num2_index] + out[i + j + out_index] + carry;
-                    out[i + j + out_index] = product_index;
-                    carry = (product_index >> BASE_BITS);
-                }
-                out[i + num1_len + out_index] = carry;
-            }
-            return;
-        }
-
-        size_t max_len = std::max(num1_len, num2_len);
-        size_t split_len = max_len - (max_len / 2);
-
-        // prep logics
-        size_t a_len, b_len, c_len, d_len;
-
-        // left hand side split
-        if (num1_len > split_len) {
-            a_len = num1_len - split_len;
-            b_len = split_len;
-        } else {
-            a_len = 0;
-            b_len = num1_len;
-        }
-
-        // right hand side split
-        if (num2_len > split_len) {
-            c_len = num2_len - split_len;
-            d_len = split_len;
-        } else {
-            c_len = 0;
-            d_len = num2_len;
-        }
-
-        // karatsuba
-
-        // z0 --------------------------------------------------------------
-        size_t z0_padding = split_len * 2;
-        if (a_len && c_len) {
-            mul_karatsuba(
-                out, out_len, out_index + z0_padding, num1, a_len, split_len + num1_index, num2, c_len,
-                split_len + num2_index
-            );
-        }
-        bint z0;
-        if (a_len && c_len) {
-            z0 = bint(out + out_index + z0_padding, a_len + c_len + 1, a_len + c_len, 0);
-        } else {
-            z0 = bint(__BINT_ZERO.number.limbs, 1, 1, 0);
-        }
-        z0.number.remove_leading_zeros();
-
-        // z1 --------------------------------------------------------------
-        mul_karatsuba(out, out_len, out_index, num1, b_len, num1_index, num2, d_len, num2_index);
-        bint z1 = bint(out + out_index, b_len + d_len + 1, b_len + d_len, 0);
-        z1.number.remove_leading_zeros();
-
-        // z2 --------------------------------------------------------------
-        bint lsplit_add, rsplit_add;
-
-        if (a_len) {
-            lsplit_add = add_partial(num1, a_len, split_len + num1_index, num1, b_len, num1_index);
-        } else {
-            lsplit_add = add_partial(__BINT_ZERO.number.limbs, 1, 0, num1, b_len, num1_index);
-        }
-
-        if (c_len) {
-            rsplit_add = add_partial(num2, c_len, split_len + num2_index, num2, d_len, num2_index);
-        } else {
-            rsplit_add = add_partial(__BINT_ZERO.number.limbs, 1, 0, num2, d_len, num2_index);
-        }
-
-        bint z2(
-            lsplit_add.number.length + rsplit_add.number.length + 1, lsplit_add.number.length + rsplit_add.number.length
-        );
-        std::memset(z2.number.limbs, 0x00, z2.number.capacity * LIMB_BYTES);
-        mul_karatsuba(
-            z2.number.limbs, z2.number.length, 0, lsplit_add.number.limbs, lsplit_add.number.length, 0,
-            rsplit_add.number.limbs, rsplit_add.number.length, 0
-        );
-        z2.number.remove_leading_zeros();
-
-        // z3 --------------------------------------------------------------
-        bint z3 = std::move(z2);
-        z3 -= z1;
-        z3 -= z0;
-        z0.detach();
-        z1.detach();
-
-        // z4 --------------------------------------------------------------
-        limb_t carry = 0;
-        for (size_t i = 0; i < z3.number.length; ++i) {
-            cast_t sum_index = (cast_t) out[i + split_len + out_index] + z3.number.limbs[i] + carry;
-            out[i + split_len + out_index] = sum_index;
-            carry = sum_index >> BASE_BITS;
-        }
-
-        // for(size_t i=out_index+split_len+z3.number.length; i < out_len; ++i) {
-        for (size_t i = out_index + split_len + z3.number.length; carry; ++i) {
-            cast_t sum_index = (cast_t) out[i] + carry;
-            out[i] = sum_index;
-            carry = sum_index >> BASE_BITS;
-        }
-        // out[out_index+split_len+z3.number.length] += carry;
+void bint_sub(const bint* a, const bint* b, bint* result) {
+    // Противоположные знаки - фактически сложение
+    if (a->sign != b->sign) {
+        integer_add(&a->number, &b->number, &result->number);
+        result->sign = a->sign;
+        return;
     }
-
-    bint bint::operator*(const bint &op) const {
-        if (number.length < KARATSUBA_SIZE || op.number.length < KARATSUBA_SIZE) {
-            return mul_naive(op);
-        }
-
-        size_t len = number.length + op.number.length;
-        bint product(len + 1, len);
-        std::memset(product.number.limbs, 0x00, product.number.capacity * LIMB_BYTES);
-        mul_karatsuba(
-            product.number.limbs, product.number.length, 0, number.limbs, number.length, 0, op.number.limbs,
-            op.number.length, 0
-        );
-        product.number.remove_leading_zeros();
-        product.sign = (sign == op.sign) ^ 1u;
-        return product;
+    
+    // Одинаковые знаки - вычитание
+    int cmp = integer_compare(&a->number, &b->number);
+    if (cmp > 0) {
+        integer_sub(&a->number, &b->number, &result->number);
+        result->sign = a->sign;
+    } else if (cmp < 0) {
+        integer_sub(&b->number, &a->number, &result->number);
+        result->sign = (a->sign == BINT_POSITIVE) ? BINT_NEGATIVE : BINT_POSITIVE;
+    } else {
+        // Числа равны, результат 0
+        integer_set_uint(&result->number, 0);
+        result->sign = BINT_POSITIVE;
     }
+}
 
-
-    bint bint::operator-() const {
-        bint negate = *this;
-        negate.sign = negate.sign ^ 1u;
-        return negate;
+void bint_mul(const bint* a, const bint* b, bint* result) {
+    integer_mul(&a->number, &b->number, &result->number);
+    
+    // Определение знака результата
+    if (a->sign == b->sign) {
+        result->sign = BINT_POSITIVE;
+    } else {
+        result->sign = BINT_NEGATIVE;
     }
-
-    // pre-fix increment/decrement
-    bint &bint::operator++() {
-        return *this += __BINT_ONE;
+    
+    // Коррекция нуля
+    if (result->number.length == 1 && result->number.limbs[0] == 0) {
+        result->sign = BINT_POSITIVE;
     }
+}
 
-    bint &bint::operator--() {
-        return *this -= __BINT_ONE;
+void bint_negate(bint* num) {
+    if (num->number.length == 1 && num->number.limbs[0] == 0) {
+        return; // -0 = 0
     }
+    num->sign = (num->sign == BINT_POSITIVE) ? BINT_NEGATIVE : BINT_POSITIVE;
+}
 
-    // post-fix increment/decrement
-    bint bint::operator++(int) {
-        bint prev = *this;
-        ++*this;
-        return prev;
+// ====================== Инкремент/декремент ======================
+
+void bint_inc(bint* num) {
+    bint one;
+    bint_init_int(&one, 1);
+    bint_add(num, &one, num);
+    bint_free(&one);
+}
+
+void bint_dec(bint* num) {
+    bint one;
+    bint_init_int(&one, 1);
+    bint_sub(num, &one, num);
+    bint_free(&one);
+}
+
+// ====================== Битовые операции ======================
+
+void bint_lshift(bint* num, size_t bits) {
+    integer_lshift(&num->number, bits);
+}
+
+void bint_rshift(bint* num, size_t bits) {
+    integer_rshift(&num->number, bits);
+}
+
+// ====================== Преобразования и вывод ======================
+
+std::string bint_to_string(const bint* num, size_t base) {
+    std::string result;
+    
+    if (num->sign == BINT_NEGATIVE) {
+        result += '-';
     }
+    
+    result += integer_to_string(&num->number, base);
+    return result;
+}
 
-    bint bint::operator--(int) {
-        bint prev = *this;
-        --*this;
-        return prev;
+std::string bint_to_hex(const bint* num) {
+    std::string result;
+    
+    if (num->sign == BINT_NEGATIVE) {
+        result += '-';
     }
+    
+    result += integer_to_hex(&num->number);
+    return result;
+}
 
-    // Shift Operators
-    bint &bint::operator<<=(size_t bits) {
-        number <<= bits;
-        return *this;
-    }
+// ====================== Вспомогательные функции ======================
 
-    bint &bint::operator>>=(size_t bits) {
-        number >>= bits;
-        number += sign;
-        return *this;
-    }
+size_t bint_byte_size(const bint* num) {
+    return integer_byte_size(&num->number);
+}
 
-    bint bint::operator<<(size_t bits) const {
-        bint shifted = *this;
-        return shifted <<= bits;
-    }
+size_t bint_bit_size(const bint* num) {
+    return integer_bit_size(&num->number);
+}
 
-    bint bint::operator>>(size_t bits) const {
-        bint shifted = *this;
-        return shifted >>= bits;
-    }
+const limb_t* bint_limb_view(const bint* num) {
+    return num->number.limbs;
+}
 
-    void bint::printHex() const {
-        if (SIGN_NEGATIVE(sign)) {
-            std::cout << "-";
-        }
-        number.printHex();
-    }
+limb_t* bint_detach(bint* num) {
+    limb_t* limbs = integer_detach(&num->number);
+    num->sign = BINT_POSITIVE;
+    return limbs;
+}
 
-    void bint::printHex_spaced_out() const {
-        number.printHex_spaced_out();
-        std::cout << ((SIGN_NEGATIVE(sign)) ? "\nNegative:" : "\nPositive\n");
-    }
-
-    void bint::printStatus(std::string printIdentifier) const {
-        number.printStatus(printIdentifier);
-        std::cout << ((SIGN_NEGATIVE(sign)) ? "\nNegative:" : "\nPositive\n");
-    }
-
-    std::string bint::to_base10_string() const {
-        std::string Base10 = "";
-        if (SIGN_NEGATIVE(sign)) {
-            Base10.push_back('-');
-        }
-
-        Base10.append(number.to_base10_string());
-        return Base10;
-    }
-
-    std::string bint::to_base16_string() const {
-        std::string Base16 = "";
-        if (SIGN_NEGATIVE(sign)) {
-            Base16.push_back('-');
-        }
-
-        Base16.append(number.to_base16_string());
-        return Base16;
-    }
-
-    // Member Access Methods
-    size_t bint::capacity_size() const {
-        return number.capacity;
-    }
-
-    size_t bint::limb_size() const {
-        return number.length;
-    }
-
-    size_t bint::byte_size() const {
-        return number.byte_size();
-    }
-
-    size_t bint::bit_size() const {
-        return number.bit_size();
-    }
-
-    const limb_t *bint::limb_view() const {
-        return (const limb_t *) number.limbs;
-    }
-
-    const limb_t *bint::byte_view() const {
-        return (const limb_t *) number.limbs;
-    }
-
-    limb_t *bint::detach() {
-        sign = 0;
-        return number.detach();
-    }
-
-    void swap(bint &a, bint &b) {
-        bint temp = std::move(a);
-        a = std::move(b);
-        b = std::move(temp);
-    }
-
-    // IO Operators
-    std::ostream &operator<<(std::ostream &out, const bint &num) {
-        out << num.to_base16_string();
-        return out;
-    }
-
-    std::istream &operator>>(std::istream &in, bint &num) {
-        std::string input;
-        in >> input;
-        num = bint(input);
-        return in;
-    }
 } // namespace apa
 
-#endif
+// Макросы для совместимости
+#define __BINT_ZERO apa::APA_BINT_ZERO
+#define __BINT_ONE apa::APA_BINT_ONE
+#define __BINT_TWO apa::APA_BINT_TWO
+#define __BINT_TEN apa::APA_BINT_TEN
+
+#endif // APA_BINT_CPP

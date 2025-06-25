@@ -1,186 +1,70 @@
-#ifndef SIGNED_BIG_INTEGER_HPP
-#define SIGNED_BIG_INTEGER_HPP
+#ifndef APA_BINT_HPP
+#define APA_BINT_HPP
 
 #include "integer.hpp"
-
-/// Left Positive - Right Negative.
-#define LPOS_RNEG(SIGN_A, SIGN_B) (SIGN_A < SIGN_B)
-
-/// Left Negative - Right Positive.
-#define LNEG_RPOS(SIGN_A, SIGN_B) (SIGN_A > SIGN_B)
-
-/// true if sign is positive.
-#define SIGN_POSITIVE(SIGN) (!SIGN)
-
-/// true if sign is negative.
-#define SIGN_NEGATIVE(SIGN) (SIGN)
-
-/// bint::compare -> integer.compare result sign flip.
-#define CMP_RES_FLIP(CMP_RESULT) (-CMP_RESULT)
+#include <cstddef>
+#include <string>
+#include <stdexcept>
 
 namespace apa {
-    /// Positive Sign Value Indicator.
-    static const limb_t POSITIVE = 0;
 
-    /// Negative Sign Value Indicator.
-    static const limb_t NEGATIVE = 1;
+// Константы знаков
+constexpr limb_t BINT_POSITIVE = 0;
+constexpr limb_t BINT_NEGATIVE = 1;
 
-    class bint_error : public std::exception {
-        private:
+// Структура знакового большого целого числа
+typedef struct {
+    integer number;   // Беззнаковое целое (модуль числа)
+    limb_t sign;      // Знак числа (0 = положительное, 1 = отрицательное)
+} bint;
 
-        unsigned int error_code;
-        std::string error_message;
+// Глобальные константы (определены в .cpp)
+extern const bint APA_BINT_ZERO;
+extern const bint APA_BINT_ONE;
+extern const bint APA_BINT_TWO;
+extern const bint APA_BINT_TEN;
 
-        public:
+// ====================== Инициализация и управление памятью ======================
+void bint_init(bint* num);
+void bint_init_int(bint* num, int value);
+void bint_init_string(bint* num, const char* str);
+void bint_copy(const bint* src, bint* dest);
+void bint_move(bint* src, bint* dest);
+void bint_free(bint* num);
 
-        bint_error(unsigned int error_code);
-        unsigned int get_error_code() const;
-        const char *what() const throw();
-    };
+// ====================== Операции сравнения ======================
+int bint_compare(const bint* a, const bint* b);
 
-    class bint {
-        private:
+// ====================== Арифметические операции ======================
+void bint_add(const bint* a, const bint* b, bint* result);
+void bint_sub(const bint* a, const bint* b, bint* result);
+void bint_mul(const bint* a, const bint* b, bint* result);
+void bint_negate(bint* num);
 
-        integer number;
+// ====================== Инкремент/декремент ======================
+void bint_inc(bint* num);
+void bint_dec(bint* num);
 
-        /// 1 if negative, 0 if positive.
-        limb_t sign;
+// ====================== Битовые операции ======================
+void bint_lshift(bint* num, size_t bits);
+void bint_rshift(bint* num, size_t bits);
 
-        /// @return returns; -1 : if less than, 0 : if equal, 1 : if greater than.
-        int compare(const bint &with) const;
+// ====================== Преобразования и вывод ======================
+std::string bint_to_string(const bint* num, size_t base = 10);
+std::string bint_to_hex(const bint* num);
 
-        // static void bitwise_prepare(bint &left, bint &right);
+// ====================== Вспомогательные функции ======================
+size_t bint_byte_size(const bint* num);
+size_t bint_bit_size(const bint* num);
+const limb_t* bint_limb_view(const bint* num);
+limb_t* bint_detach(bint* num);
 
-        static bint add_partial(
-            const limb_t *l, size_t l_len, size_t l_index, const limb_t *r, size_t r_len, size_t r_index
-        );
-
-        // static void sub_partial(
-        //     limb_t *output, size_t out_len, size_t out_index, const limb_t *m, size_t m_len, size_t m_index
-        // );
-
-        static void mul_karatsuba(
-            limb_t *output, size_t out_len, size_t out_index, const limb_t *l, size_t l_len, size_t l_index,
-            const limb_t *r, size_t r_len, size_t r_index
-        );
-
-        public:
-
-        // Constructors
-        bint();
-
-        // Literal Constructors
-        bint(char num);
-        bint(unsigned char num);
-        bint(short num);
-        bint(unsigned short num);
-        bint(int num);
-        bint(unsigned int num);
-        bint(long num);
-        bint(unsigned long num);
-        bint(long long num);
-        bint(unsigned long long num);
-
-        // String Literal Constructors
-        bint(const std::string &input);
-        bint(const char *input);
-
-        // Array Constructors
-        bint(std::initializer_list<limb_t> limbs, limb_t sign = 0);
-        bint(limb_t *arr, size_t capacity, size_t length, limb_t sign);
-
-        /// automatically sets the sign to `POSITIVE`.
-        bint(size_t capacity, size_t length, bool AllocateSpace = true);
-
-        // Special Constructors.
-        bint(const bint &src);     // copy.
-        bint(bint &&src) noexcept; // move.
-
-        // Special Assignments.
-        bint &operator=(const bint &src);     // copy.
-        bint &operator=(bint &&src) noexcept; // move.
-
-        // integer Constructors
-        bint(limb_t sign, const integer &number);     // integer copy.
-        bint(limb_t sign, integer &&number) noexcept; // integer move.
-
-        ~bint();
-
-        // Relational Operators
-        bool operator<(const bint &op) const;
-        bool operator>(const bint &op) const;
-        bool operator==(const bint &op) const;
-        bool operator!=(const bint &op) const;
-        bool operator<=(const bint &op) const;
-        bool operator>=(const bint &op) const;
-
-        // Logical Operators
-        explicit operator bool() const noexcept;
-
-        // Arithmetic Operators
-        bint &operator+=(const bint &op);
-        bint &operator-=(const bint &op);
-        bint &operator*=(const bint &op);
-
-        bint operator+(const bint &op) const;
-        bint operator-(const bint &op) const;
-        bint operator*(const bint &op) const;
-
-        bint operator-() const;
-
-        bint mul_naive(const bint &op) const;
-
-        // pre-fix increment/decrement
-        bint &operator++();
-        bint &operator--();
-
-        // post-fix increment/decrement
-        bint operator++(int);
-        bint operator--(int);
-
-        // Shift Operators
-        bint &operator<<=(size_t bits);
-        bint &operator>>=(size_t bits);
-        bint operator<<(size_t bits) const;
-        bint operator>>(size_t bits) const;
-        // for left shift (<<) with parameter bint type use the formula : x*2^k
-        // for right shift (>>) with parameter bint type use the formula : x/2^k
-
-        // Print Methods
-        void printHex() const;
-        void printHex_spaced_out() const;
-        void printStatus(std::string printIdentifier = "default") const;
-
-        /// @return returns a string that represent the value of a bint number in base
-        /// 10 form or decimal.
-        std::string to_base10_string() const;
-
-        /// @return returns a string that represent the value of a bint number in base
-        /// 16 form or hexadecimal.
-        std::string to_base16_string() const;
-
-        // Member Access Methods
-        size_t capacity_size() const;
-        size_t limb_size() const;
-        size_t byte_size() const;
-        size_t bit_size() const;
-        const limb_t *limb_view() const;
-        const limb_t *byte_view() const;
-        limb_t *detach();
-    };
-
-    // functions
-    void swap(bint &a, bint &b);
-
-    // IO Operators
-    std::ostream &operator<<(std::ostream &out, const bint &num);
-    std::istream &operator>>(std::istream &in, bint &num);
-
-    // bint constants
-    static const bint __BINT_ZERO = 0;
-    static const bint __BINT_ONE = 1;
-    static const bint __BINT_TWO = 2;
-    static const bint __BINT_TEN = 10;
 } // namespace apa
 
-#endif
+// Макросы для совместимости со старым кодом
+#define __BINT_ZERO apa::APA_BINT_ZERO
+#define __BINT_ONE apa::APA_BINT_ONE
+#define __BINT_TWO apa::APA_BINT_TWO
+#define __BINT_TEN apa::APA_BINT_TEN
+
+#endif // APA_BINT_HPP
