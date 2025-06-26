@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <type_traits>
+#include <complex>
 #include "integer.hpp"
 
 template <typename T1, typename T2>
@@ -15,6 +16,137 @@ struct get_initial_capacity {
 };
 
 namespace apa {
+
+class FFT {
+public:
+    using Complex = std::complex<double>;
+
+    static void transform(std::vector<Complex>& a, bool invert) {
+        size_t n = a.size();
+        if (n == 0) return;
+
+        // Бит-реверс перестановка
+        for (size_t i = 1, j = 0; i < n; i++) {
+            size_t bit = n >> 1;
+            for (; j >= bit; bit >>= 1)
+                j -= bit;
+            j += bit;
+            if (i < j)
+                std::swap(a[i], a[j]);
+        }
+
+        // Бабочки Cooley-Tukey
+        for (size_t len = 2; len <= n; len <<= 1) {
+            double ang = 2 * PI / len * (invert ? -1 : 1);
+            Complex wlen(cos(ang), sin(ang));
+            for (size_t i = 0; i < n; i += len) {
+                Complex w(1);
+                for (size_t j = 0; j < len / 2; j++) {
+                    Complex u = a[i + j];
+                    Complex v = a[i + j + len / 2] * w;
+                    a[i + j] = u + v;
+                    a[i + j + len / 2] = u - v;
+                    w *= wlen;
+                }
+            }
+        }
+
+        if (invert) {
+            for (Complex& x : a)
+                x /= n;
+        }
+    }
+
+    static integer multiply(const integer& a, const integer& b) {
+            // Проверка нулей
+            if (!a || !b) return __INTEGER_ZERO;
+
+            // Обработка малых чисел без FFT
+            if (a.length <= 8 || b.length <= 8) {
+                return a.schoolbook_mult(b);
+            }
+
+            // Конвертация в коэффициенты
+            std::vector<limb_t> a_coeffs = convert_to_coeffs(a);
+            std::vector<limb_t> b_coeffs = convert_to_coeffs(b);
+
+            // Размер для FFT
+            size_t n = 1;
+            while (n < a_coeffs.size() + b_coeffs.size()) 
+                n <<= 1;
+
+            std::vector<Complex> fa(n), fb(n);
+            for (size_t i = 0; i < a_coeffs.size(); i++)
+                fa[i] = a_coeffs[i];
+            for (size_t i = 0; i < b_coeffs.size(); i++)
+                fb[i] = b_coeffs[i];
+
+            // Прямое преобразование
+            transform(fa, false);
+            transform(fb, false);
+
+            // Поэлементное умножение
+            for (size_t i = 0; i < n; i++)
+                fa[i] *= fb[i];
+
+            // Обратное преобразование
+            transform(fa, true);
+
+            // Сборка результата с переносами
+            std::vector<limb_t> result;
+            limb_t carry = 0;
+            for (size_t i = 0; i < n; i++) {
+                double raw_val = fa[i].real();
+                limb_t val = static_cast<limb_t>(std::round(raw_val)) + carry;
+                carry = val >> FFT_BASE_BITS;
+                result.push_back(val & (FFT_BASE - 1));
+            }
+            
+            while (carry) {
+                result.push_back(carry & (FFT_BASE - 1));
+                carry >>= FFT_BASE_BITS;
+            }
+
+            // Удаление ведущих нулей
+            while (result.size() > 1 && result.back() == 0)
+                result.pop_back();
+            
+            // Конвертация обратно в integer
+            return convert_from_coeffs(result);
+        }
+
+    private:
+        static std::vector<limb_t> convert_to_coeffs(const integer& num) {
+            std::vector<limb_t> coeffs;
+            if (!num) {
+                coeffs.push_back(0);
+                return coeffs;
+            }
+            
+            integer temp = num;
+            integer base = FFT_BASE;
+            
+            while (temp) {
+                integer quotient;
+                integer remainder;
+                integer::div_mod(quotient, remainder, temp, base);
+                coeffs.push_back(remainder.limbs[0]);
+                temp = quotient;
+            }
+            return coeffs;
+        }
+
+        static integer convert_from_coeffs(const std::vector<limb_t>& coeffs) {
+            integer result = 0;
+            for (auto it = coeffs.rbegin(); it != coeffs.rend(); ++it) {
+                result = result << FFT_BASE_BITS;
+                result += integer(*it);
+            }
+            return result;
+        }
+    };
+
+
     integer::integer() noexcept
     :   capacity(INITIAL_LIMB_CAPACITY),
         length(INITIAL_LIMB_LENGTH),
@@ -464,10 +596,10 @@ integer integer::operator*(const integer& op) const noexcept {
     }
 
     // Выбор алгоритма умножения
-    if (length <= threshold || op.length <= threshold) {
-        return schoolbook_mult(op);
-    }
-    return karatsuba_mult(*this, op);
+    // if (length <= threshold || op.length <= threshold) {
+        // return schoolbook_mult(op);
+    // }
+    return FFT::multiply(*this, op);
 }
 
 

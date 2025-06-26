@@ -17,6 +17,11 @@
 
 namespace apa {
 
+    const size_t FFT_THRESHOLD = 10000; // Порог для переключения на FFT (~1.5 млн бит)
+    const int FFT_BASE_BITS = 15;       // Битов на блок (2^15 = 32768)
+    const limb_t FFT_BASE = 1 << FFT_BASE_BITS;
+    const double PI = 3.14159265358979323846;
+
     const unsigned char HEX_TO_CHAR[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     const unsigned char CHAR_TO_HEX[127] = {
