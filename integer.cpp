@@ -596,36 +596,11 @@ namespace apa {
         return shifted >>= bits;
     }
 
-    void integer::printHex() const {
-        std::cout << "0x";
-        printf(PRINT_LIMBHEX_NOPAD, (limb_t) limbs[length - 1]);
-        for (size_t i = 1; i < length; ++i) {
-            printf(PRINT_LIMBHEX, (limb_t) limbs[length - 1 - i]);
-        }
-        std::cout << "\n";
-    }
-
-    void integer::printHex_spaced_out() const {
-        printf(PRINT_LIMBHEX, (limb_t) limbs[length - 1]);
-        for (size_t i = 1; i < length; ++i) {
-            printf(PRINT_LIMBHEX_SPACED, (limb_t) limbs[length - 1 - i]);
-        }
-        std::cout << "\n";
-    }
-
     void integer::printBin_spaced_out() const {
         for (size_t i = 0; i < length; ++i) {
             std::cout << std::bitset<BASE_BITS>(limbs[length - 1 - i]) << " ";
         }
         std::cout << "\n";
-    }
-
-    void integer::printStatus(std::string printIdentifier) const {
-        std::cout << "\n-----\n";
-        std::cout << printIdentifier << "\n";
-        std::cout << "capacity : " << capacity << "\n";
-        std::cout << "length   : " << length << "\n";
-        printHex_spaced_out();
     }
 
     std::string integer::to_base10_string() const {

@@ -13,15 +13,15 @@ Average performance (nanoseconds)
 
 | cases | nanoseconds |
 | ----- | ----------- |
-| add (a + b) | 5172 ns |
-| sub (a - b) | 5758 ns |
-| mul (a * b) | 4204688 ns |
+| add (a + b) | 5212 ns |
+| sub (a - b) | 5693 ns |
+| mul (a * b) | 4149171 ns |
 **functions**
 
 | name | microseconds |
 | ---- | ------------ |
-| apa::fibonacci(100000) | 159597 μs |
-| apa::factorial(8000) | 17352 μs |
+| apa::fibonacci(100000) | 160610 μs |
+| apa::factorial(8000) | 17537 μs |
 
 ### Using base 2<sup>32</sup> number system representation.
 
@@ -32,15 +32,15 @@ Average performance (nanoseconds)
 
 | cases | nanoseconds |
 | ----- | ----------- |
-| add (a + b) | 2487 ns |
-| sub (a - b) | 2178 ns |
-| mul (a * b) | 1217859 ns |
+| add (a + b) | 1802 ns |
+| sub (a - b) | 2418 ns |
+| mul (a * b) | 1332996 ns |
 **functions**
 
 | name | microseconds |
 | ---- | ------------ |
-| apa::fibonacci(100000) | 68231 μs |
-| apa::factorial(8000) | 7942 μs |
+| apa::fibonacci(100000) | 54007 μs |
+| apa::factorial(8000) | 6668 μs |
 
 ### Using base 2<sup>64</sup> number system representation.
 
@@ -51,15 +51,15 @@ Average performance (nanoseconds)
 
 | cases | nanoseconds |
 | ----- | ----------- |
-| add (a + b) | 1116 ns |
-| sub (a - b) | 1143 ns |
-| mul (a * b) | 454559 ns |
+| add (a + b) | 963 ns |
+| sub (a - b) | 1061 ns |
+| mul (a * b) | 408635 ns |
 **functions**
 
 | name | microseconds |
 | ---- | ------------ |
-| apa::fibonacci(100000) | 34549 μs |
-| apa::factorial(8000) | 3965 μs |
+| apa::fibonacci(100000) | 33592 μs |
+| apa::factorial(8000) | 4321 μs |
 
 
 ### System Runner
@@ -79,7 +79,7 @@ Thread(s) per core:                 2
 Core(s) per socket:                 6
 Socket(s):                          1
 Stepping:                           0
-BogoMIPS:                           7200.03
+BogoMIPS:                           7200.05
 Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core ssbd ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 clzero xsaveerptr arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip rdpid
 Virtualization:                     AMD-V
 Hypervisor vendor:                  Microsoft

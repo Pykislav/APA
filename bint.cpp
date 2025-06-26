@@ -613,22 +613,6 @@ namespace apa {
         return shifted >>= bits;
     }
 
-    void bint::printHex() const {
-        if (SIGN_NEGATIVE(sign)) {
-            std::cout << "-";
-        }
-        number.printHex();
-    }
-
-    void bint::printHex_spaced_out() const {
-        number.printHex_spaced_out();
-        std::cout << ((SIGN_NEGATIVE(sign)) ? "\nNegative:" : "\nPositive\n");
-    }
-
-    void bint::printStatus(std::string printIdentifier) const {
-        number.printStatus(printIdentifier);
-        std::cout << ((SIGN_NEGATIVE(sign)) ? "\nNegative:" : "\nPositive\n");
-    }
 
     std::string bint::to_base10_string() const {
         std::string Base10 = "";

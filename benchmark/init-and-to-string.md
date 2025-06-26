@@ -10,11 +10,11 @@ string's size use to initialize = 5500
 
 | cases | microseconds |
 | ----- | ----------- |
-| base 2 initialization | 21729 |
-| base 8 initialization | 21084 |
-| base 10 initialization | 21345 |
-| base 16 initialization | 82 |
-| to_base10_string() | 21659 |
+| base 2 initialization | 20860 |
+| base 8 initialization | 20628 |
+| base 10 initialization | 20948 |
+| base 16 initialization | 106 |
+| to_base10_string() | 21468 |
 
 the to_base10_string() benchmark is from a 1375 limbs size big integer
 
@@ -24,11 +24,11 @@ string's size use to initialize = 5500
 
 | cases | microseconds |
 | ----- | ----------- |
-| base 2 initialization | 18048 |
-| base 8 initialization | 17789 |
-| base 10 initialization | 20070 |
-| base 16 initialization | 100 |
-| to_base10_string() | 15478 |
+| base 2 initialization | 17217 |
+| base 8 initialization | 17188 |
+| base 10 initialization | 17909 |
+| base 16 initialization | 82 |
+| to_base10_string() | 14646 |
 
 the to_base10_string() benchmark is from a 688 limbs size big integer
 
@@ -38,11 +38,11 @@ string's size use to initialize = 5500
 
 | cases | microseconds |
 | ----- | ----------- |
-| base 2 initialization | 19273 |
-| base 8 initialization | 18934 |
-| base 10 initialization | 18815 |
-| base 16 initialization | 76 |
-| to_base10_string() | 13887 |
+| base 2 initialization | 17140 |
+| base 8 initialization | 17547 |
+| base 10 initialization | 18039 |
+| base 16 initialization | 118 |
+| to_base10_string() | 12723 |
 
 the to_base10_string() benchmark is from a 344 limbs size big integer
 
@@ -64,7 +64,7 @@ Thread(s) per core:                 2
 Core(s) per socket:                 6
 Socket(s):                          1
 Stepping:                           0
-BogoMIPS:                           7200.03
+BogoMIPS:                           7200.05
 Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core ssbd ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 clzero xsaveerptr arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip rdpid
 Virtualization:                     AMD-V
 Hypervisor vendor:                  Microsoft

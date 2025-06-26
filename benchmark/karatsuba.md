@@ -8,24 +8,24 @@ Average performance of APA's karatsuba implementation (microseconds)
 
 | cases | limb dimension | microseconds |
 | ----- | ----------- | -------------------- |
-| case 1 | 2054x2038 | 780 μs |
-| case 2 | 2054x918 | 508 μs |
-| case 3 | 128x2038 | 161 μs |
+| case 1 | 2054x2038 | 758 μs |
+| case 2 | 2054x918 | 490 μs |
+| case 3 | 128x2038 | 155 μs |
 
 ### Using base 2<sup>32</sup> number system representation.
 
 | cases | limb dimension | microseconds |
 | ----- | ----------- | -------------------- |
-| case 1 | 1027x1019 | 262 μs |
-| case 2 | 1027x459 | 171 μs |
-| case 3 | 64x1019 | 55 μs |
+| case 1 | 1027x1019 | 209 μs |
+| case 2 | 1027x459 | 136 μs |
+| case 3 | 64x1019 | 45 μs |
 
 ### Using base 2<sup>64</sup> number system representation.
 
 | cases | limb dimension | microseconds |
 | ----- | ----------- | -------------------- |
-| case 1 | 514x510 | 83 μs |
-| case 2 | 514x230 | 55 μs |
+| case 1 | 514x510 | 81 μs |
+| case 2 | 514x230 | 52 μs |
 | case 3 | 32x510 | 11 μs |
 
 
@@ -46,7 +46,7 @@ Thread(s) per core:                 2
 Core(s) per socket:                 6
 Socket(s):                          1
 Stepping:                           0
-BogoMIPS:                           7200.03
+BogoMIPS:                           7200.05
 Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core ssbd ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 clzero xsaveerptr arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip rdpid
 Virtualization:                     AMD-V
 Hypervisor vendor:                  Microsoft
