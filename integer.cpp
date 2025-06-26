@@ -372,36 +372,103 @@ namespace apa {
         return *this;
     }
 
-    integer integer::operator*(const integer &op) const noexcept {
-        if ((*this && op) ^ 1u) {
-            return __INTEGER_ZERO;
-        }
-
-        limb_t *arr = (limb_t *) std::malloc(LIMB_BYTES * (length + op.length));
-        integer product(arr, length + op.length, length + op.length);
-
-        size_t i = 0, j = 0;
-        limb_t carry = 0;
-        for (j = 0; j < length; ++j) {
-            cast_t product_index = (cast_t) limbs[j] * op.limbs[0] + carry;
-            product.limbs[j] = product_index;
-            carry = (product_index >> BASE_BITS);
-        }
-        product.limbs[length] = carry;
-
-        for (i = 1; i < op.length; ++i) {
-            carry = 0;
-            for (j = 0; j < length; ++j) {
-                cast_t product_index = (cast_t) limbs[j] * op.limbs[i] + product.limbs[i + j] + carry;
-                product.limbs[i + j] = product_index;
-                carry = (product_index >> BASE_BITS);
-            }
-            product.limbs[i + length] = carry;
-        }
-
-        product.length -= !product.limbs[product.length - 1];
-        return product;
+    integer integer::schoolbook_mult(const integer& op) const noexcept {
+    if ((*this && op) ^ 1u) {
+        return __INTEGER_ZERO;
     }
+
+    limb_t* arr = (limb_t*)std::malloc(LIMB_BYTES * (length + op.length));
+    integer product(arr, length + op.length, length + op.length);
+
+    size_t i = 0, j = 0;
+    limb_t carry = 0;
+    
+    // Первый проход (умножение на первый limb)
+    for (j = 0; j < length; ++j) {
+        cast_t product_index = (cast_t)limbs[j] * op.limbs[0] + carry;
+        product.limbs[j] = product_index;
+        carry = product_index >> BASE_BITS;
+    }
+    product.limbs[length] = carry;
+
+    // Последующие проходы
+    for (i = 1; i < op.length; ++i) {
+        carry = 0;
+        for (j = 0; j < length; ++j) {
+            cast_t product_index = (cast_t)limbs[j] * op.limbs[i] 
+                                + product.limbs[i + j] 
+                                + carry;
+            product.limbs[i + j] = product_index;
+            carry = product_index >> BASE_BITS;
+        }
+        product.limbs[i + length] = carry;
+    }
+
+    product.length = length + op.length;
+    product.remove_leading_zeros();
+    return product;
+}
+
+integer integer::slice(size_t start, size_t len) const {
+    if (start >= length || len == 0) {
+        return __INTEGER_ZERO;
+    }
+    
+    size_t actual_len = std::min(len, length - start);
+    integer result(actual_len, actual_len);
+    std::memcpy(result.limbs, limbs + start, actual_len * LIMB_BYTES);
+    result.remove_leading_zeros();
+    return result;
+}
+
+integer integer::karatsuba_mult(const integer& x, const integer& y) {
+    const size_t threshold = 32; // Порог переключения на школьный метод
+
+    // Проверка на маленькие числа
+    if (x.length <= threshold || y.length <= threshold) {
+        return x.schoolbook_mult(y);
+    }
+
+    // Вычисляем точку разбиения
+    size_t m = (std::max(x.length, y.length) + 1) / 2;
+
+    // Разбиваем числа на части
+    integer x0 = x.slice(0, m);
+    integer x1 = x.slice(m, x.length - m);
+    integer y0 = y.slice(0, m);
+    integer y1 = y.slice(m, y.length - m);
+
+    // Рекурсивные вычисления
+    integer z0 = karatsuba_mult(x0, y0);
+    integer z2 = karatsuba_mult(x1, y1);
+    
+    // Промежуточные суммы
+    integer x10 = x1 + x0;
+    integer y10 = y1 + y0;
+    integer z1 = karatsuba_mult(x10, y10) - z0 - z2;
+
+    // Комбинирование результатов
+    integer part2 = z2 << (2 * m * BASE_BITS);
+    integer part1 = z1 << (m * BASE_BITS);
+    integer result = part2 + part1 + z0;
+    
+    return result;
+}
+
+integer integer::operator*(const integer& op) const noexcept {
+    const size_t threshold = 32; // Порог для Карацубы
+
+    // Проверка на ноль
+    if ((*this && op) ^ 1u) {
+        return __INTEGER_ZERO;
+    }
+
+    // Выбор алгоритма умножения
+    if (length <= threshold || op.length <= threshold) {
+        return schoolbook_mult(op);
+    }
+    return karatsuba_mult(*this, op);
+}
 
 
     void div_n_by_1(limb_t *quotient, limb_t *dividen, size_t length, limb_t divisor) {

@@ -75,7 +75,9 @@ namespace apa {
         size_t capacity;
         size_t length;
         limb_t *limbs;
-
+        integer schoolbook_mult(const integer& op) const noexcept;
+        static integer karatsuba_mult(const integer& x, const integer& y);
+        integer slice(size_t start, size_t len) const;
         // Constructors
         integer() noexcept;
         integer(size_t num) noexcept;
