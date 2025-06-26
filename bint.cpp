@@ -288,7 +288,6 @@ namespace apa {
         return compare(op) >= EQUAL;
     }
 
-    
     // Logical Operators
     bint::operator bool() const noexcept {
         return (bool) number;
