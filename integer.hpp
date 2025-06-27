@@ -18,7 +18,7 @@
 namespace apa {
 
     const size_t FFT_THRESHOLD = 10000; // Порог для переключения на FFT (~1.5 млн бит)
-    const int FFT_BASE_BITS = 15;       // Битов на блок (2^15 = 32768)
+    const int FFT_BASE_BITS = 30;       // Битов на блок (2^15 = 32768)
     const limb_t FFT_BASE = 1 << FFT_BASE_BITS;
     const double PI = 3.14159265358979323846;
 

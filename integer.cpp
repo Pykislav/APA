@@ -38,7 +38,7 @@ public:
         // Бабочки Cooley-Tukey
         for (size_t len = 2; len <= n; len <<= 1) {
             double ang = 2 * PI / len * (invert ? -1 : 1);
-            Complex wlen(cos(ang), sin(ang));
+            Complex wlen((double)cos(ang), (double)sin(ang));
             for (size_t i = 0; i < n; i += len) {
                 Complex w(1);
                 for (size_t j = 0; j < len / 2; j++) {
@@ -62,9 +62,9 @@ public:
             if (!a || !b) return __INTEGER_ZERO;
 
             // Обработка малых чисел без FFT
-            if (a.length <= 8 || b.length <= 8) {
-                return a.schoolbook_mult(b);
-            }
+            // if (a.length <= 8 || b.length <= 8) {
+            //     return a.schoolbook_mult(b);
+            // }
 
             // Конвертация в коэффициенты
             std::vector<limb_t> a_coeffs = convert_to_coeffs(a);
@@ -557,9 +557,9 @@ integer integer::karatsuba_mult(const integer& x, const integer& y) {
     const size_t threshold = 32; // Порог переключения на школьный метод
 
     // Проверка на маленькие числа
-    if (x.length <= threshold || y.length <= threshold) {
-        return x.schoolbook_mult(y);
-    }
+    // if (x.length <= threshold || y.length <= threshold) {
+    //     return x.schoolbook_mult(y);
+    // }
 
     // Вычисляем точку разбиения
     size_t m = (std::max(x.length, y.length) + 1) / 2;
